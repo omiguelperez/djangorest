@@ -37,3 +37,46 @@ class ViewTestCase(TestCase):
     def test_api_can_create_a_bucketlist(self):
         """Test the api has bucket creation capability."""
         self.assertEqual(self.response.status_code, status.HTTP_201_CREATED)
+
+    def test_api_can_get_a_bucketlist(self):
+        """Test the api can get a given bucketlist."""
+        bucketlist = BucketList.objects.get()
+        response = self.client.get(
+            reverse('details', kwargs={'pk': bucketlist.id}),
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        found_bucketlist = response.data
+
+        self.assertEqual(found_bucketlist.get('id'), bucketlist.id)
+        self.assertEqual(found_bucketlist.get('name'), bucketlist.name)
+
+    def test_api_can_update_bucketlist(self):
+        """Test the api can update a given bucketlist."""
+        bucketlist = BucketList.objects.get()
+        change_bucketlist = {'name': 'Something new'}
+        response = self.client.put(
+            reverse('details', kwargs={'pk': bucketlist.id}),
+            change_bucketlist,
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        modified_bucketlist = response.data
+
+        self.assertEqual(modified_bucketlist.get('id'), bucketlist.id)
+        self.assertEqual(modified_bucketlist.get('name'),
+                         change_bucketlist.get('name'))
+
+    def test_api_can_delete_bucketlist(self):
+        """Test the api can delete a given bucketlist."""
+        bucketlist = BucketList.objects.get()
+        response = self.client.delete(
+            reverse('details', kwargs={'pk': bucketlist.id})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
